@@ -14,12 +14,6 @@ def make_request(birthdate="1995-05-20", amount=100000):
         passportSeries="1234", passportNumber="567890")
 
 
-def test_calculate_age():
-    today = date.today()
-    born = date(today.year - 30, today.month, today.day)
-    assert offers_service.calculate_age(born) == 30
-
-
 def test_prescoring_rejects_minor():
     with pytest.raises(ValueError):
         offers_service.prescoring(make_request(birthdate="2015-01-01"))

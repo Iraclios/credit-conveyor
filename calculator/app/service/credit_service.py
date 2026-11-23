@@ -3,25 +3,14 @@ from datetime import date
 
 from app.configuration import configuration as cfg
 from app.dto.dto import CreditDto, ScoringDataDto
-from app.service.offers_service import calculate_age
 from app.utils.service_utils import (build_schedule, insurance_price, money,
-                                     monthly_payment, psk)
+                                     monthly_payment, psk, validate_loan_conditions)
 
 logger = logging.getLogger(__name__)
 
 
 def scoring(data: ScoringDataDto) -> None:
-    age = calculate_age(data.birthdate)
-    if not cfg.MIN_AGE <= age <= cfg.MAX_AGE:
-        logger.warning("Scoring failed: age=%s, allowed=%s-%s", age, cfg.MIN_AGE, cfg.MAX_AGE)
-        raise ValueError(f"Возраст {age} вне допустимого диапазона")
-    if data.amount > cfg.MAX_AMOUNT:
-        logger.warning("Scoring failed: amount=%s, max=%s", data.amount, cfg.MAX_AMOUNT)
-        raise ValueError("Сумма превышает допустимую")
-    if data.term > cfg.MAX_TERM:
-        logger.warning("Scoring failed: term=%s, max=%s", data.term, cfg.MAX_TERM)
-        raise ValueError("Срок превышает допустимый")
-    logger.info("Scoring passed: age=%s, amount=%s, term=%s", age, data.amount, data.term)
+    validate_loan_conditions(data.birthdate, data.amount, data.term)
 
 def calculate_credit(data: ScoringDataDto) -> CreditDto:
     logger.info("Calc request: %s", data)

@@ -1,25 +1,15 @@
 import logging
 import uuid
-from datetime import date
 
 from app.configuration import configuration as cfg
 from app.dto.dto import LoanOfferDto, LoanStatementRequestDto
-from app.utils.service_utils import insurance_price, money, monthly_payment
+from app.utils.service_utils import insurance_price, money, monthly_payment, validate_loan_conditions
 
 logger = logging.getLogger(__name__)
 
 
-def calculate_age(birthdate: date) -> int:
-    today = date.today()
-    return today.year - birthdate.year - ((today.month, today.day) < (birthdate.month, birthdate.day))
-
-
 def prescoring(request: LoanStatementRequestDto) -> None:
-    age = calculate_age(request.birthdate)
-    if age < cfg.MIN_AGE:
-        logger.warning("Prescoring failed: age %s", age)
-        raise ValueError(f"Возраст должен быть не менее {cfg.MIN_AGE} лет")
-    logger.info("Prescoring passed: age=%s", age)
+    validate_loan_conditions(request.birthdate, request.amount, request.term)
 
 
 def build_offer(request: LoanStatementRequestDto, statement_id: uuid.UUID,

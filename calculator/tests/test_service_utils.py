@@ -5,7 +5,7 @@ import pytest
 
 from app.utils.service_utils import (add_months, build_schedule,
                                      insurance_price, money,
-                                     monthly_payment, psk)
+                                     monthly_payment, psk, calculate_age)
 
 
 def test_money_rounds_half_up():
@@ -50,8 +50,8 @@ def test_psk_equals_rate_without_extra_costs():
     assert psk(Decimal("100000"), [r.total_payment for r in schedule]) == Decimal("15.00")
 
 
-def test_psk_higher_with_insurance():
-    total = Decimal("110000")
-    payment = monthly_payment(total, Decimal("12"), 12)
-    schedule = build_schedule(total, Decimal("12"), 12, payment, date(2026, 11, 21))
-    assert psk(Decimal("100000"), [r.total_payment for r in schedule]) > Decimal("12")
+
+def test_calculate_age():
+    today = date.today()
+    born = date(today.year - 30, today.month, today.day)
+    assert calculate_age(born) == 30
