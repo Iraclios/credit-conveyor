@@ -31,7 +31,7 @@ def calculate_credit(data: ScoringDataDto) -> CreditDto:
     if data.is_insurance_enabled:
         price = insurance_price(data.amount)
         rate -= cfg.INSURANCE_RATE_DISCOUNT
-        total += insurance_price(data.amount)
+        total += price
         logger.debug("Insurance applied: price=%s, rate=%s", price, rate)
     if data.is_salary_client:
         rate -= cfg.SALARY_RATE_DISCOUNT
@@ -45,8 +45,7 @@ def calculate_credit(data: ScoringDataDto) -> CreditDto:
     psk_value = psk(data.amount, [row.total_payment for row in schedule])
     logger.info("PSK=%s", psk_value)
     result = CreditDto(
-        amount=money(total), term=data.term, monthly_payment=payment, rate=rate,
-        psk=psk(data.amount, [row.total_payment for row in schedule]),
+        amount=money(total), term=data.term, monthly_payment=payment, rate=rate, psk=psk_value,
         is_insurance_enabled=data.is_insurance_enabled,
         is_salary_client=data.is_salary_client, payment_schedule=schedule)
     logger.info("Credit calculated: %s", result)
