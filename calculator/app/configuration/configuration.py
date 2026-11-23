@@ -8,3 +8,4 @@ MIN_AGE = 18
 MAX_AMOUNT = Decimal("5000000")
 MAX_TERM = 360
 MAX_AGE = 65
+PSK_METHOD = "effective_grid"

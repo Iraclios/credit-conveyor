@@ -28,10 +28,14 @@ def calculate_credit(data: ScoringDataDto) -> CreditDto:
     logger.info("Final rate=%s, total amount=%s", rate, total)
     payment = monthly_payment(total, rate, data.term)
     logger.info("Monthly payment=%s", payment)
-    schedule = build_schedule(total, rate, data.term, payment, date.today())
+    start = date.today()
+    schedule = build_schedule(total, rate, data.term, payment, start)
     logger.info("Schedule built: %s payments, first=%s, last=%s",
                 len(schedule), schedule[0].date, schedule[-1].date)
-    psk_value = psk(data.amount, [row.total_payment for row in schedule])
+    psk_value = psk(data.amount,
+                    [row.total_payment for row in schedule],
+                    [row.date for row in schedule],
+                    start)
     logger.info("PSK=%s", psk_value)
     result = CreditDto(
         amount=money(total), term=data.term, monthly_payment=payment, rate=rate, psk=psk_value,

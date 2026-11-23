@@ -79,9 +79,65 @@ def psk_nominal(amount, payments, dates, start) -> Decimal:
     low, high = Decimal("0"), Decimal("1")
     for _ in range(100):
         mid = (low + high) / 2
-        if npv(mid) > 0:
-            low = mid
-        else:
-            high = mid
-    monthly = (low + high) / 2
-    return money(monthly * 12 * 100)
+        low, high = (mid, high) if npv(mid) > 0 else (low, mid)
+    return money((low + high) / 2 * 12 * 100)
+
+
+def psk_effective_real(amount, payments, dates, start) -> Decimal:
+    years = [float((d - start).days) / 365 for d in dates]
+    values = [float(p) for p in payments]
+    target = float(amount)
+
+    def present_value(rate: float) -> float:
+        return sum(v / (1 + rate) ** t for v, t in zip(values, years))
+
+    low, high = 0.0, 10.0
+    for _ in range(100):
+        mid = (low + high) / 2
+        low, high = (mid, high) if present_value(mid) > target else (low, mid)
+    return money(Decimal((low + high) / 2 * 100))
+
+
+def psk_effective_30(amount, payments, dates, start) -> Decimal:
+    years = [30 * (k + 1) / 365 for k in range(len(payments))]
+    values = [float(p) for p in payments]
+    target = float(amount)
+
+    def present_value(rate: float) -> float:
+        return sum(v / (1 + rate) ** t for v, t in zip(values, years))
+
+    low, high = 0.0, 10.0
+    for _ in range(100):
+        mid = (low + high) / 2
+        low, high = (mid, high) if present_value(mid) > target else (low, mid)
+    return money(Decimal((low + high) / 2 * 100))
+
+def psk_effective_grid(amount, payments, dates, start) -> Decimal:
+    years = [(k + 1) / 12 for k in range(len(payments))]
+    values = [float(p) for p in payments]
+    target = float(amount)
+
+    def present_value(rate: float) -> float:
+        return sum(v / (1 + rate) ** t for v, t in zip(values, years))
+
+    low, high = 0.0, 10.0
+    for _ in range(100):
+        mid = (low + high) / 2
+        low, high = (mid, high) if present_value(mid) > target else (low, mid)
+    return money(Decimal((low + high) / 2 * 100))
+
+
+PSK_METHODS = {
+    "simple": psk_simple,
+    "nominal": psk_nominal,
+    "effective_real": psk_effective_real,
+    "effective_30": psk_effective_30,
+    "effective_grid": psk_effective_grid,
+}
+
+
+def psk(amount, payments, dates, start, method: str | None = None) -> Decimal:
+    name = method or cfg.PSK_METHOD
+    if name not in PSK_METHODS:
+        raise ValueError(f"Неизвестный метод ПСК: {name}")
+    return PSK_METHODS[name](amount, payments, dates, start)
