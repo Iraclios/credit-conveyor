@@ -1,5 +1,6 @@
 from decimal import Decimal
 
+NAME_PATTERN = r"^[A-Za-zА-Яа-яЁё-]+$"
 BASE_RATE = Decimal("15")
 INSURANCE_RATE_DISCOUNT = Decimal("3")
 SALARY_RATE_DISCOUNT = Decimal("1")

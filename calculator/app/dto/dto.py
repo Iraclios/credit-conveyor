@@ -4,6 +4,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
 from pydantic.alias_generators import to_camel
+from app.configuration import configuration as cfg
 
 
 class CamelModel(BaseModel):
@@ -13,9 +14,9 @@ class CamelModel(BaseModel):
 class LoanStatementRequestDto(CamelModel):
     amount: Decimal = Field(ge=30000, description="Сумма кредита")
     term: int = Field(ge=6, description="Срок кредита в месяцах")
-    first_name: str = Field(min_length=2, max_length=30, pattern=r"^[A-Za-z]+$")
-    last_name: str = Field(min_length=2, max_length=30, pattern=r"^[A-Za-z]+$")
-    middle_name: str | None = Field(default=None, min_length=2, max_length=30, pattern=r"^[A-Za-z]+$")
+    first_name: str = Field(min_length=2, max_length=30, pattern=cfg.NAME_PATTERN)
+    last_name: str = Field(min_length=2, max_length=30, pattern=cfg.NAME_PATTERN)
+    middle_name: str | None = Field(default=None, min_length=2, max_length=30, pattern=cfg.NAME_PATTERN)
     email: str = Field(pattern=r"^[\w\.-]{2,50}@[\w\.-]+\.\w{2,}$")
     birthdate: date
     passport_series: str = Field(pattern=r"^\d{4}$")
@@ -36,9 +37,9 @@ class LoanOfferDto(CamelModel):
 class ScoringDataDto(CamelModel):
     amount: Decimal = Field(ge=30000, description="Сумма кредита")
     term: int = Field(ge=6, description="Срок кредита в месяцах")
-    first_name: str = Field(min_length=2, max_length=30, pattern=r"^[A-Za-z]+$")
-    last_name: str = Field(min_length=2, max_length=30, pattern=r"^[A-Za-z]+$")
-    middle_name: str | None = Field(default=None, min_length=2, max_length=30, pattern=r"^[A-Za-z]+$")
+    first_name: str = Field(min_length=2, max_length=30, pattern=cfg.NAME_PATTERN)
+    last_name: str = Field(min_length=2, max_length=30, pattern=cfg.NAME_PATTERN)
+    middle_name: str | None = Field(default=None, min_length=2, max_length=30, pattern=cfg.NAME_PATTERN)
     birthdate: date
     passport_series: str = Field(pattern=r"^\d{4}$")
     passport_number: str = Field(pattern=r"^\d{6}$")
